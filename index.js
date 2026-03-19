@@ -17,7 +17,7 @@ const APP_ID = process.env.FEISHU_APP_ID || 'cli_a930dcf79538dccb';
 const APP_SECRET = process.env.FEISHU_APP_SECRET || 'i2CgwwWoeKmWq1oUDLNeAgKaUKNNmifS';
 const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
 const MINIMAX_MODEL = process.env.MINIMAX_MODEL || 'MiniMax-M2.5';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || process.env.RAILWAY_PORT || 8080;
 
 // 存储 tenant_access_token 和过期时间
 let tenantToken = { token: null, expireTime: 0 };
