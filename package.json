@@ -1,0 +1,12 @@
+{
+  "name": "feishu-minimax-bot",
+  "version": "1.0.0",
+  "description": "飞书机器人 - MiniMax 对话",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
