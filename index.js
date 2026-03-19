@@ -175,7 +175,7 @@ app.all('/webhook', async (req, res) => {
 
 // 启动服务器
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🤖 飞书机器人启动成功！`);
+  console.log(`🤖 飞书机器人启动成功！！`);
   console.log(`📡 监听端口: ${PORT}`);
   console.log(`🔧 环境变量:`);
   console.log(`   FEISHU_APP_ID: ${APP_ID}`);
