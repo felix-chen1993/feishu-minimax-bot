@@ -6,11 +6,14 @@
  *   FEISHU_APP_SECRET - 飞书应用密钥
  *   MINIMAX_API_KEY - MiniMax API 密钥
  *   MINIMAX_MODEL - MiniMax 模型 (默认: MiniMax-M2.5)
- *   PORT - 服务端口 (默认: 3000)
+ *   PORT - 服务端口
  */
 
-const http = require('http');
+const express = require('express');
 const crypto = require('crypto');
+
+const app = express();
+app.use(express.json());
 
 // 环境变量
 const APP_ID = process.env.FEISHU_APP_ID || 'cli_a930dcf79538dccb';
@@ -141,67 +144,37 @@ async function handleEvent(event) {
   }
 }
 
-// HTTP 服务器
-const server = http.createServer(async (req, res) => {
-  // CORS 头
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Feishu-Signature, X-Feishu-Request-Timestamp, X-Feishu-Request-Nonce');
-  
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200);
-    res.end();
-    return;
-  }
+// 根路由 - 健康检查
+app.get('/', (req, res) => {
+  res.send('🤖 飞书机器人运行中...');
+});
 
-  if (req.method === 'GET') {
-    // 验证 URL 用于飞书回调
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('飞书机器人运行中...');
-    return;
-  }
+// 飞书回调
+app.all('/webhook', async (req, res) => {
+  try {
+    const data = req.body;
+    console.log('收到请求:', JSON.stringify(data));
 
-  if (req.method === 'POST') {
-    let body = '';
-    req.on('data', chunk => body += chunk);
-    req.on('end', async () => {
-      try {
-        const data = JSON.parse(body);
-        
-        // 验证签名（生产环境建议开启）
-        // const signature = req.headers['x-feishu-signature'];
-        // const timestamp = req.headers['x-feishu-request-timestamp'];
-        // const nonce = req.headers['x-feishu-request-nonce'];
-        // if (!verifySignature(signature, timestamp, nonce, data)) {
-        //   res.writeHead(401);
-        //   res.end('签名验证失败');
-        //   return;
-        // }
+    // 处理 URL 验证事件
+    if (data.type === 'url_verification') {
+      res.json({ challenge: data.challenge });
+      return;
+    }
 
-        // 处理 URL 验证事件
-        if (data.type === 'url_verification') {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ challenge: data.challenge }));
-          return;
-        }
+    // 处理事件回调
+    if (data.type === 'event_callback') {
+      await handleEvent(data.event);
+    }
 
-        // 处理事件回调
-        if (data.type === 'event_callback') {
-          await handleEvent(data.event);
-        }
-
-        res.writeHead(200);
-        res.end('ok');
-      } catch (err) {
-        console.error('处理错误:', err);
-        res.writeHead(500);
-        res.end('error');
-      }
-    });
+    res.send('ok');
+  } catch (err) {
+    console.error('处理错误:', err);
+    res.status(500).send('error');
   }
 });
 
-server.listen(PORT, () => {
+// 启动服务器
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🤖 飞书机器人启动成功！`);
   console.log(`📡 监听端口: ${PORT}`);
   console.log(`🔧 环境变量:`);
