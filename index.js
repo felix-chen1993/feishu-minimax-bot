@@ -179,6 +179,8 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📡 监听端口: ${PORT}`);
   console.log(`🔧 环境变量:`);
   console.log(`   FEISHU_APP_ID: ${APP_ID}`);
-  console.log(`   MINIMAX_API_KEY: ${MINIMAX_API_KEY ? '已配置' : '未配置'}`);
+  console.log(`   MINIMAX_API_KEY: ${MINIMAX_API_KEY ? '已配置 (长度:' + MINIMAX_API_KEY.length + ')' : '未配置'}`);
   console.log(`   MINIMAX_MODEL: ${MINIMAX_MODEL}`);
+  console.log(`   PORT: ${PORT}`);
+  console.log(`   RAILWAY_PORT: ${process.env.RAILWAY_PORT}`);
 });
